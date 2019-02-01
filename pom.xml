@@ -79,7 +79,7 @@
                                     <!-- The database type. The format here is: org.util.[database].[database]Database -->
                                     <!--<name>org.jooq.meta.h2.H2Database</name>-->
                                     <!-- The database schema (or in the absence of schema support, in your RDBMS this  can be the owner, user, database name) to be generated -->
-                                    <inputSchema></inputSchema>
+                                    <inputSchema>PUBLIC</inputSchema>
                                     <!-- All elements that are generated from your schema (A Java regular expression. Use the pipe to separate several expressions)                         Watch out for case-sensitivity. Depending on your database, this might be important! -->
                                     <!--<includes>.*</includes>-->
                                     <!-- All elements that are excluded from your schema (A Java regular expression. Use the pipe to separate several expressions).                         Excludes match before includes, i.e. excludes have a higher priority -->
@@ -91,7 +91,7 @@
                                 </database>
                                 <target>
                                     <packageName>ru.mvc.entity</packageName>
-                                    <directory>src/main/java</directory>
+                                    <directory>target/generated-sources/jooq</directory>
                                 </target>
                             </generator>
                         </configuration>
@@ -173,6 +173,14 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.4</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
