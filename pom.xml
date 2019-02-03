@@ -25,6 +25,8 @@
 
         <jackson-json.version>2.9.3</jackson-json.version>
 
+        <joog-code-plugin>3.11.9</joog-code-plugin>
+
     </properties>
 
     <build>
@@ -58,61 +60,194 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.jooq</groupId>
-                <artifactId>jooq-codegen-maven</artifactId>
-                <version>3.11.9</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>postgres</id>
+            <properties>
+                <spring.profiles.active>postgres</spring.profiles.active>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jooq</groupId>
+                        <artifactId>jooq-codegen-maven</artifactId>
+                        <version>${joog-code-plugin}</version>
+                        <executions>
+                            <!-- Generate the required class from the database -->
+                            <execution>
+                                <id>generate-postgres</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.postgresql</groupId>
+                                <artifactId>postgresql</artifactId>
+                                <version>42.2.4</version>
+                            </dependency>
+                        </dependencies>
                         <configuration>
                             <jdbc>
-                                <driver>org.h2.Driver</driver>
-                                <url>jdbc:h2:file:D:/temp/H2/Jooq-H2</url>
+                                <driver>org.postgresql.Driver</driver>
+                                <url>jdbc:postgresql://localhost:5432/Joog</url>
+                                <user>postgres</user>
+                                <password>root</password>
                             </jdbc>
                             <generator>
-                                <!--<name>org.jooq.codegen.JavaGenerator</name>-->
                                 <database>
-                                    <!-- The database type. The format here is: org.util.[database].[database]Database -->
-                                    <!--<name>org.jooq.meta.h2.H2Database</name>-->
-                                    <!-- The database schema (or in the absence of schema support, in your RDBMS this  can be the owner, user, database name) to be generated -->
-                                    <inputSchema>PUBLIC</inputSchema>
-                                    <!-- All elements that are generated from your schema (A Java regular expression. Use the pipe to separate several expressions)                         Watch out for case-sensitivity. Depending on your database, this might be important! -->
-                                    <!--<includes>.*</includes>-->
-                                    <!-- All elements that are excluded from your schema (A Java regular expression. Use the pipe to separate several expressions).                         Excludes match before includes, i.e. excludes have a higher priority -->
-                                    <excludes>
-                                        RDB\$.*
-                                        | MON\$.*
-                                        | SEC\$.*
-                                    </excludes>
+                                    <!-- Configure the used database dialect -->
+                                    <name>org.jooq.meta.postgres.PostgresDatabase</name>
+                                    <!-- Include all tables found from the PUBLIC schema -->
+                                    <includes>.*</includes>
+                                    <excludes></excludes>
+                                    <inputSchema>public</inputSchema>
                                 </database>
+                                <!-- Generate classes for tables and records -->
+                                <generate>
+                                    <records>true</records>
+                                </generate>
+                                <!-- Configure the target package and directory -->
                                 <target>
                                     <packageName>ru.mvc.entity</packageName>
                                     <directory>target/generated-sources/jooq</directory>
                                 </target>
                             </generator>
                         </configuration>
-                    </execution>
-                </executions>
-                <!--<dependencies>-->
-                    <!--<dependency>-->
-                        <!--<groupId>org.jooq</groupId>-->
-                        <!--<artifactId>jooq-meta-extensions</artifactId>-->
-                        <!--<version>3.11.8</version>-->
-                    <!--</dependency>-->
-                    <!--<dependency>-->
-                        <!--<groupId>com.h2database</groupId>-->
-                        <!--<artifactId>h2</artifactId>-->
-                        <!--<version>1.4.197</version>-->
-                    <!--</dependency>-->
-                <!--</dependencies>-->
-            </plugin>
+                    </plugin>
+                </plugins>
+            </build>
+            <!--<dependencies>-->
+            <!--<dependency>-->
+            <!--<groupId>org.postgresql</groupId>-->
+            <!--<artifactId>postgresql</artifactId>-->
+            <!--<version>42.2.4</version>-->
+            <!--</dependency>-->
+            <!--</dependencies>-->
+        </profile>
 
-        </plugins>
-    </build>
+        <profile>
+            <id>H2</id>
+            <properties>
+                <spring.profiles.active>h2</spring.profiles.active>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jooq</groupId>
+                        <artifactId>jooq-codegen-maven</artifactId>
+                        <version>${joog-code-plugin}</version>
+                        <executions>
+                            <!-- Generate the required class from the database -->
+                            <execution>
+                                <id>generate-h2</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.h2database</groupId>
+                                <artifactId>h2</artifactId>
+                                <version>1.4.197</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                            <jdbc>
+                                <driver>org.h2.Driver</driver>
+                                <url>jdbc:h2:file:D:/temp/H2/Jooq</url>
+                            </jdbc>
+                            <generator>
+                                <database>
+                                    <!-- Configure the used database dialect -->
+                                    <name>org.jooq.meta.h2.H2Database</name>
+                                    <!-- Include all tables found from the PUBLIC schema -->
+                                    <includes>.*</includes>
+                                    <excludes></excludes>
+                                    <inputSchema>PUBLIC</inputSchema>
+                                </database>
+                                <!-- Generate classes for tables and records -->
+                                <generate>
+                                    <records>true</records>
+                                </generate>
+                                <!-- Configure the target package and directory -->
+                                <target>
+                                    <packageName>ru.mvc.entity</packageName>
+                                    <directory>target/generated-sources/jooq</directory>
+                                </target>
+                            </generator>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>hsqldb</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jooq</groupId>
+                        <artifactId>jooq-codegen-maven</artifactId>
+                        <version>${joog-code-plugin}</version>
+                        <executions>
+                            <!-- Generate the required class from the database -->
+                            <execution>
+                                <id>generate-hsqldb</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.hsqldb</groupId>
+                                <artifactId>hsqldb</artifactId>
+                                <version>2.4.0</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                            <jdbc>
+                                <driver>org.hsqldb.jdbc.JDBCDriver</driver>
+                                <url>jdbc:hsqldb:file:D:/temp/hsqldb/Joog</url>
+                                <user>sa</user>
+                                <password></password>
+                            </jdbc>
+                            <generator>
+                                <database>
+                                    <!-- Configure the used database dialect -->
+                                    <name>org.jooq.meta.hsqldb.HSQLDBDatabase</name>
+                                    <!-- Include all tables found from the PUBLIC schema -->
+                                    <includes>.*</includes>
+                                    <excludes></excludes>
+                                    <inputSchema>PUBLIC</inputSchema>
+                                </database>
+                                <!-- Generate classes for tables and records -->
+                                <generate>
+                                    <records>true</records>
+                                </generate>
+                                <!-- Configure the target package and directory -->
+                                <target>
+                                    <packageName>ru.mvc.entity</packageName>
+                                    <directory>target/generated-sources/jooq</directory>
+                                </target>
+                            </generator>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
+
 
     <dependencies>
 
@@ -153,6 +288,18 @@
             <artifactId>h2</artifactId>
             <version>1.4.197</version>
         </dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>2.4.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.4</version>
+        </dependency>
+
 
         <!--JOOG-->
         <dependency>

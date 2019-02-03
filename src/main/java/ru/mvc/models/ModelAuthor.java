@@ -11,10 +11,13 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ModelAuthor {
-    private int id;
+    private Integer id;
     private String firstName;
     private String lastName;
-    private List<ModelBook> books = new ArrayList<>();
+
+
+
+//    private List<ModelBook> books = new ArrayList<>();
 
 
 }
